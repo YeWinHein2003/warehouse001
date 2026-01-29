@@ -13,8 +13,6 @@ import java.util.List;
 @Data
 @Entity
 @Table(name="warehouse")
-@NoArgsConstructor(access = AccessLevel.PUBLIC) // Required by JPA
-@AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class) // Enable automatic auditing
 public class Warehouse {
     @Id
@@ -110,6 +108,21 @@ public class Warehouse {
     }
 
     public void setZones(List<Zone> zones) {
+        this.zones = zones;
+    }
+
+    public Warehouse(){
+
+    }
+
+    public Warehouse(Long id, String name, String location, String township, WarehouseType warehouseType, OffsetDateTime createdAt, Long createdUserId, List<Zone> zones) {
+        this.id = id;
+        this.name = name;
+        this.location = location;
+        this.township = township;
+        this.warehouseType = warehouseType;
+        this.createdAt = createdAt;
+        this.createdUserId = createdUserId;
         this.zones = zones;
     }
 }

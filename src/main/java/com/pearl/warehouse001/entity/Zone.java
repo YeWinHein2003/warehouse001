@@ -6,15 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name="zone")
-@NoArgsConstructor(access = AccessLevel.PUBLIC)
-@AllArgsConstructor(access = AccessLevel.PUBLIC)
+@Table(name="zone" , uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"name", "warehouse_id"})
+})
 @EntityListeners(AuditingEntityListener.class) // Enable automatic auditing
 public class Zone {
 
@@ -85,6 +84,19 @@ public class Zone {
     }
 
     public void setCreatedUserId(Long createdUserId) {
+        this.createdUserId = createdUserId;
+    }
+
+    public Zone(){
+
+    }
+
+    public Zone(Long id, Warehouse warehouse, String name, String zoneType, OffsetDateTime createdAt, Long createdUserId) {
+        this.id = id;
+        this.warehouse = warehouse;
+        this.name = name;
+        this.zoneType = zoneType;
+        this.createdAt = createdAt;
         this.createdUserId = createdUserId;
     }
 }
