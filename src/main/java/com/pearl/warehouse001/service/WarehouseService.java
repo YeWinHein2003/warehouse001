@@ -87,16 +87,16 @@ public class WarehouseService {
         return warehouseMapper.toResponse(savedWarehouse);
     }
 
-    @Transactional
-    public Long saveWarehouseWithId(WarehouseRequest request) {
-        if (warehouseRepository.existsByName(request.name())) {
-            throw new NameDuplicateException("Warehouse name already exists");
-        }
-
-        Warehouse warehouse = warehouseMapper.toEntity(request);
-        Warehouse saved = warehouseRepository.save(warehouse);
-        return saved.getId();
-    }
+//    @Transactional
+//    public Long saveWarehouseWithId(WarehouseRequest request) {
+//        if (warehouseRepository.existsByName(request.name())) {
+//            throw new NameDuplicateException("Warehouse name already exists");
+//        }
+//
+//        Warehouse warehouse = warehouseMapper.toEntity(request);
+//        Warehouse saved = warehouseRepository.save(warehouse);
+//        return saved.getId();
+//    }
 
     public WarehouseResponse updateWarehouse(Long id, WarehouseUpdateRequest warehouseRequest) {
 
