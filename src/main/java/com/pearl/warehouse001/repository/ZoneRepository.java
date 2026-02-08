@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ZoneRepository extends JpaRepository<Zone, Long>, JpaSpecificationExecutor<Zone> {
@@ -20,6 +21,8 @@ public interface ZoneRepository extends JpaRepository<Zone, Long>, JpaSpecificat
     @Query(value = "SELECT z from Zone z JOIN FETCH z.warehouse",
             countQuery= "SELECT count(z) FROM Zone z")
     Page<Zone> findAllZones(Pageable pageable);
+
+    Optional<Zone> findByNameContaining( String zoneName);
 
     boolean existsByNameAndWarehouseId(String name,Long warehouseId);
 

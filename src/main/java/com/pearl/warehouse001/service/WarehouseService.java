@@ -4,6 +4,7 @@ import com.pearl.warehouse001.dto.WarehouseRequest;
 import com.pearl.warehouse001.dto.WarehouseResponse;
 import com.pearl.warehouse001.dto.WarehouseUpdateRequest;
 import com.pearl.warehouse001.entity.Warehouse;
+import com.pearl.warehouse001.entity.WarehouseSpecification;
 import com.pearl.warehouse001.exception.NameDuplicateException;
 import com.pearl.warehouse001.mapper.WarehouseMapper;
 import com.pearl.warehouse001.repository.WarehouseRepository;
@@ -18,12 +19,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 
 @Service
-@Transactional
+@Transactional  // Default for write operations
 public class WarehouseService {
 
     // Define allowed sort fields for pagination
@@ -37,9 +40,6 @@ public class WarehouseService {
     @Autowired
     private WarehouseMapper warehouseMapper;
 
-    /**
-     * Advanced Search/Filter method similar to your ProductService
-     */
     public Page<WarehouseResponse> getWarehouses(
             int page,
             int size,
@@ -71,9 +71,19 @@ public class WarehouseService {
 //        this.warehouseRepository = warehouseRepository;
 //    }
 
-    public Page<WarehouseResponse> getAllWarehouses(Pageable pageable) {
-        return warehouseRepository.findAllWarehousesWithZones(pageable)
-                .map(warehouseMapper::toResponse);
+    @Transactional(readOnly = true) // Better performance for reading
+    public List<WarehouseResponse> getAllWarehouses() {
+        // Fetches all records from the database
+        List<Warehouse> warehouses = warehouseRepository.findAll();
+
+        // Map the entities to DTOs (using your existing mapping logic)
+        return warehouses.stream()
+                .map(warehouseMapper::toResponse)
+                .toList();
+    }
+
+    public Optional<Warehouse> getWarehouseByName(String name) {
+        return warehouseRepository.findByNameContaining(name);
     }
 
 
@@ -117,7 +127,7 @@ public class WarehouseService {
 
 
 
-
+    @Transactional(readOnly = true)
     public WarehouseResponse getWarehouseById(Long id) {
         Warehouse warehouse = warehouseRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Warehouse not found"));
@@ -131,7 +141,10 @@ public class WarehouseService {
         return true;
     }
 
+    @Transactional(readOnly = true)
     public Page<WarehouseResponse> getWarehousesPaginated(
+            String keyword,
+            String name,
             int page,
             int size,
             String sortBy,
@@ -146,7 +159,11 @@ public class WarehouseService {
                 : Sort.by(sortBy).ascending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Warehouse> warehousePage = warehouseRepository.findAll(pageable);
+
+        Specification<Warehouse> spec = Specification.where(WarehouseSpecification.hasName(name))
+                .and(WarehouseSpecification.globalSearch(keyword));
+
+        Page<Warehouse> warehousePage = warehouseRepository.findAll(spec,pageable);
 
         // Map entire page to Response DTOs
         return warehousePage.map(warehouseMapper::toResponse);

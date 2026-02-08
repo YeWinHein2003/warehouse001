@@ -5,6 +5,7 @@ import com.pearl.warehouse001.dto.api.ApiResponse;
 import com.pearl.warehouse001.dto.ZoneRequest;
 import com.pearl.warehouse001.dto.ZoneResponse;
 import com.pearl.warehouse001.dto.api.Pagination;
+import com.pearl.warehouse001.entity.Zone;
 import com.pearl.warehouse001.service.ZoneService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/zones")
@@ -26,12 +28,14 @@ public class ZoneController {
 
     @GetMapping("list-paging")
     public ResponseEntity<ApiResponse<List<ZoneResponse>>> getAll(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String name,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "DESC") String direction) {
 
-        Page<ZoneResponse> zonePage = zoneService.getZonesPaginated(page, size, sortBy, direction);
+        Page<ZoneResponse> zonePage = zoneService.getZonesPaginated(keyword,name,page, size, sortBy, direction);
 
         // Map Spring Page to your custom Pagination DTO
         Pagination pagination = new Pagination(
@@ -56,6 +60,11 @@ public class ZoneController {
     public ResponseEntity<ApiResponse<ZoneResponse>> getById(@PathVariable Long id) {
         ZoneResponse data = zoneService.getZoneById(id);
         return ResponseEntity.ok(ApiResponse.success(data,"Zone retrieved Successfully"));
+    }
+
+    @GetMapping("/find-by-name")
+    public Optional<Zone> findByZoneName(@RequestParam String name) {
+        return zoneService.getByZoneName(name);
     }
 
     @PostMapping("/save")

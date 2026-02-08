@@ -20,7 +20,7 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long>, Jpa
             countQuery = "SELECT count(w) FROM Warehouse w")
     Page<Warehouse> findAllWarehousesWithZones(Pageable pageable);
 
-    Optional<Warehouse> findByName(String name);
+    Optional<Warehouse> findByNameContaining(String name);
 
     Page<Warehouse> findByLocation(String location, Pageable pageable);
 

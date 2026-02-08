@@ -5,14 +5,17 @@ import com.pearl.warehouse001.dto.WarehouseRequest;
 import com.pearl.warehouse001.dto.WarehouseResponse;
 import com.pearl.warehouse001.dto.WarehouseUpdateRequest;
 import com.pearl.warehouse001.dto.api.Pagination;
+import com.pearl.warehouse001.entity.Warehouse;
 import com.pearl.warehouse001.service.WarehouseService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/warehouses")
@@ -25,15 +28,28 @@ public class WarehouseController {
     }
 
 
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<List<WarehouseResponse>>> getAllWarehouses() {
+        List<WarehouseResponse> warehouses = warehouseService.getAllWarehouses();
+        return ResponseEntity.ok(ApiResponse.success(warehouses, "Warehouses found Successfully"));
+    }
+
+    @GetMapping("/find-by-name")
+    public Optional<Warehouse> findByName(@RequestParam("name") String name) {
+        return warehouseService.getWarehouseByName(name);
+    }
+
     @GetMapping("/list-paging")
     public ResponseEntity<ApiResponse<List<WarehouseResponse>>> getWarehouses(
+            @RequestParam(required = false)String keyword,
+            @RequestParam(required = false) String name,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id", required = false) String sortBy,
             @RequestParam(defaultValue = "DESC", required = false) String direction) {
 
         // Assuming your service now accepts these primitive types like ProductService
-        Page<WarehouseResponse> warehousePage = warehouseService.getWarehousesPaginated(page, size, sortBy, direction);
+        Page<WarehouseResponse> warehousePage = warehouseService.getWarehousesPaginated(keyword,name, page, size, sortBy, direction);
 
         // Manually build Pagination object to match your Product style
         Pagination pagination = new Pagination(

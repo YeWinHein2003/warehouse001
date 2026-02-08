@@ -7,6 +7,7 @@ import com.pearl.warehouse001.entity.Warehouse;
 import com.pearl.warehouse001.entity.Zone;
 import com.pearl.warehouse001.exception.NameDuplicateException;
 import com.pearl.warehouse001.mapper.ZoneMapper;
+import com.pearl.warehouse001.repository.Specification.ZoneSpecification;
 import com.pearl.warehouse001.repository.WarehouseRepository;
 import com.pearl.warehouse001.repository.ZoneRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.naming.NameAlreadyBoundException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,7 +41,14 @@ public class ZoneService {
     private final WarehouseRepository warehouseRepository;
 
     // Advanced Paging method consistent with WarehouseService
-    public Page<ZoneResponse> getZonesPaginated(int page, int size, String sortBy, String direction) {
+    @Transactional(readOnly = true)
+    public Page<ZoneResponse> getZonesPaginated(
+            String keyword,
+            String name,
+            int page,
+            int size,
+            String sortBy,
+            String direction) {
         if (!ALLOWED_SORT_FIELDS.contains(sortBy)) {
             sortBy = "id";
         }
@@ -48,10 +58,16 @@ public class ZoneService {
                 : Sort.by(sortBy).ascending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        return zoneRepository.findAll(pageable).map(zoneMapper::toResponse);
+
+        Specification<Zone> spec = Specification.where(ZoneSpecification.hasName(name))
+                .and(ZoneSpecification.globalSearch(keyword));
+
+        return zoneRepository.findAll(spec,pageable).map(zoneMapper::toResponse);
     }
 
-
+    public Optional<Zone> getByZoneName(String zoneName) {
+        return zoneRepository.findByNameContaining(zoneName);
+    }
 
     public ZoneService(ZoneRepository zoneRepository, WarehouseRepository warehouseRepository) {
         this.zoneRepository = zoneRepository;
