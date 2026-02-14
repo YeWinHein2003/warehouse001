@@ -15,8 +15,7 @@ public interface WarehouseMapper {
     @Mapping(target = "township" , ignore = true)
     Warehouse toEntity(WarehouseRequest warehouseRequest) ;
 
-    @Mapping(target = "regionName", source = "township.region.region_name")
-    @Mapping(target = "townshipName", source= "township.township_name")
+    @Mapping(target = "address", expression = "java(warehouse.getTownship().getRegion().getRegion_name() + \",\" + warehouse.getTownship().getTownship_name())")
     WarehouseResponse toResponse(Warehouse warehouse);
 
 

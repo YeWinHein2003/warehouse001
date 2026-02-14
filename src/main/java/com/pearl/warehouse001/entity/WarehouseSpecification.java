@@ -11,7 +11,20 @@ public class WarehouseSpecification {
     public static Specification<Warehouse> hasName(String name){
         //use ".trim()" to remove  all leading (at the start) and trailing (at the end) whitespace from a string
         return (root, query, cb) -> (name == null || name.trim().isEmpty() ? null : cb.like(cb.lower(root.get("name")), "%"+name.trim().toLowerCase()+"%"));
+    }
 
+    public static Specification<Warehouse> hasRegion(Long regionId){
+        return (root, query, cb) -> {
+            if(regionId == null) return null;
+            return cb.equal(root.get("region").get("id"), regionId);
+        };
+    }
+
+    public static Specification<Warehouse> hasTownship(Long townshipId){
+        return (root, query, cb) -> {
+            if(townshipId == null) return null;
+            return cb.equal(root.get("township").get("id"), townshipId);
+        };
     }
 
     public static Specification<Warehouse> globalSearch(String keyword){
@@ -24,8 +37,7 @@ public class WarehouseSpecification {
 
             Join<Warehouse , Township> joinTownship = root.join("township", JoinType.LEFT);
 
-            // This line allows searching in the Region table even if Warehouse isn't directly linked to it
-            Join<Township, Region> joinRegion = joinTownship.join("region", JoinType.LEFT);
+            Join<Warehouse, Region> joinRegion = root.join("region", JoinType.LEFT);
 
             return cb.or(
                     cb.like(cb.lower(root.get("name")),pattern),

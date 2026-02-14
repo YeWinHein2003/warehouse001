@@ -14,6 +14,7 @@ public record WarehouseRequest (
     @Pattern(regexp = "^[a-zA-Z0-9\\s\\-]+$" , message = "Name must be alphanumeric")
     String name,
 
+
     @NotNull
     Long townshipId,
 

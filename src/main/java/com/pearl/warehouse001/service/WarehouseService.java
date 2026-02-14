@@ -106,6 +106,7 @@ public class WarehouseService {
 
         Warehouse warehouse = warehouseMapper.toEntity(warehouseRequest);
         warehouse.setTownship(township);
+        warehouse.setRegion(township.getRegion());
         Warehouse savedWarehouse = warehouseRepository.save(warehouse);
         return warehouseMapper.toResponse(savedWarehouse);
     }
@@ -156,6 +157,8 @@ public class WarehouseService {
     public Page<WarehouseResponse> getWarehousesPaginated(
             String keyword,
             String name,
+            Long townshipId,
+            Long regionId,
             int page,
             int size,
             String sortBy,
@@ -172,7 +175,11 @@ public class WarehouseService {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Specification<Warehouse> spec = Specification.where(WarehouseSpecification.hasName(name))
-                .and(WarehouseSpecification.globalSearch(keyword));
+                .and(WarehouseSpecification.globalSearch(keyword))
+                .and(WarehouseSpecification.hasTownship(townshipId))
+                .and(WarehouseSpecification.hasRegion(regionId));
+
+
 
         Page<Warehouse> warehousePage = warehouseRepository.findAll(spec,pageable);
 

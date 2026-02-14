@@ -35,6 +35,6 @@ public class LocationController {
     @GetMapping("/regions/{regionId}/townships")
     public  ResponseEntity<ApiResponse<List<TownshipResponse>>> getTownships(@PathVariable  Long regionId) {
         List<TownshipResponse> townships = locationService.getTownshipsByRegion(regionId);
-        return ResponseEntity.ok(ApiResponse.success(townships, "Warehouses found Successfully"));
+        return ResponseEntity.ok(ApiResponse.success(townships, "Townships found Successfully"));
     }
 }

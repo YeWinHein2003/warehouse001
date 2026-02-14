@@ -36,11 +36,11 @@ public class Township {
         this.id = id;
     }
 
-    public String getTownshipCode() {
+    public String getTownship_code() {
         return township_code;
     }
 
-    public void setTownshipCode(String township_code) {
+    public void setTownship_code(String township_code) {
         this.township_code = township_code;
     }
 

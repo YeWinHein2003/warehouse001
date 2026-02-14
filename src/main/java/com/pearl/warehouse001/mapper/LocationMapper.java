@@ -22,6 +22,7 @@ public interface LocationMapper {
     Township toTownshipEntity(TownshipRequest townshipRequest);
 
     @Mapping(target="region_name",source="region.region_name")
+    @Mapping(target="township_name",source = "township.township_name")
     TownshipResponse toTownshipResponse(Township township);
     List<TownshipResponse> toTownshipResponseList(List<Township> townships);
 }

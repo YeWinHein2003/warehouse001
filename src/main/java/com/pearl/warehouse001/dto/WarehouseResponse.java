@@ -12,17 +12,16 @@ import java.time.OffsetDateTime;
 public class WarehouseResponse {
     private Long id;
     private String name;
-    private String regionName;
-    private String townshipName;
+    private String address;
 
     private WarehouseType warehouseType;
     private OffsetDateTime createdAt;
 
-    public WarehouseResponse(Long id, String name, String regionName, String townshipName, WarehouseType warehouseType, OffsetDateTime createdAt) {
+    public WarehouseResponse(Long id, String name,
+                             String address, WarehouseType warehouseType, OffsetDateTime createdAt) {
         this.id = id;
         this.name = name;
-        this.regionName = regionName;
-        this.townshipName = townshipName;
+        this.address = address;
         this.warehouseType = warehouseType;
         this.createdAt = createdAt;
     }
@@ -43,20 +42,13 @@ public class WarehouseResponse {
         this.name = name;
     }
 
-    public String getRegionName() {
-        return regionName;
+
+    public String getAddress() {
+        return address;
     }
 
-    public void setRegionName(String regionName) {
-        this.regionName = regionName;
-    }
-
-    public String getTownshipName() {
-        return townshipName;
-    }
-
-    public void setTownshipName(String townshipName) {
-        this.townshipName = townshipName;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public WarehouseType getWarehouseType() {
