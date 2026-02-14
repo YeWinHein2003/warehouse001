@@ -7,8 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,11 +20,6 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long>, Jpa
 
     Optional<Warehouse> findByNameContaining(String name);
 
-    Page<Warehouse> findByLocation(String location, Pageable pageable);
-
-    Page<Warehouse> findByTownshipContainingIgnoreCase(String township, Pageable pageable);
-
-    Page<Warehouse> findByWarehouseType(Warehouse.WarehouseType warehouseType, Pageable pageable);
-
     boolean existsByName(String name);
 }
+

@@ -1,12 +1,15 @@
 package com.pearl.warehouse001.service; // Lowercase package
 
+import com.pearl.warehouse001.dto.BinRequest;
 import com.pearl.warehouse001.dto.ZoneRequest;
 import com.pearl.warehouse001.dto.ZoneResponse;
 import com.pearl.warehouse001.dto.ZoneUpdateRequest;
+import com.pearl.warehouse001.entity.Bin;
 import com.pearl.warehouse001.entity.Warehouse;
 import com.pearl.warehouse001.entity.Zone;
 import com.pearl.warehouse001.exception.NameDuplicateException;
 import com.pearl.warehouse001.mapper.ZoneMapper;
+import com.pearl.warehouse001.repository.BinRepository;
 import com.pearl.warehouse001.repository.Specification.ZoneSpecification;
 import com.pearl.warehouse001.repository.WarehouseRepository;
 import com.pearl.warehouse001.repository.ZoneRepository;
@@ -22,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.naming.NameAlreadyBoundException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +43,8 @@ public class ZoneService {
     private final ZoneRepository zoneRepository;
 
     private final WarehouseRepository warehouseRepository;
+    @Autowired
+    private BinRepository binRepository;
 
     // Advanced Paging method consistent with WarehouseService
     @Transactional(readOnly = true)
@@ -78,6 +84,26 @@ public class ZoneService {
 
         if (zoneRepository.existsByNameAndWarehouseId(zoneRequest.name(),zoneRequest.warehouseId())){
             throw new NameDuplicateException("Zone Name"+ zoneRequest.name()+" already exist");
+        }
+
+        if(zoneRequest.bins() != null && !zoneRequest.bins().isEmpty()){
+            List<String> incomingCodes = zoneRequest.bins().stream()
+                    .map(BinRequest::code)
+                    .toList();
+
+            for(String code : incomingCodes){
+                if(binRepository.existsByCodeAndZone_WarehouseId(code,zoneRequest.warehouseId())){
+                    throw new NameDuplicateException("Bin Code: "+ code +" already exist in warehouse");
+                }
+            }
+
+            // to check whether duplicate bin code exist in request
+            Set<String> duplicateCode = new HashSet<>();
+            for(String code : incomingCodes){
+                if(!duplicateCode.add(code)){
+                    throw new NameDuplicateException("Duplicate bin code: "+code+ " found in request");
+                }
+            }
         }
 
         Warehouse warehouse = warehouseRepository.findById(zoneRequest.warehouseId())

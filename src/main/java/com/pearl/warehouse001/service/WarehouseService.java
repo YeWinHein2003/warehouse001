@@ -1,14 +1,15 @@
 package com.pearl.warehouse001.service;
 
-import com.pearl.warehouse001.dto.WarehouseRequest;
-import com.pearl.warehouse001.dto.WarehouseResponse;
-import com.pearl.warehouse001.dto.WarehouseUpdateRequest;
+import com.pearl.warehouse001.dto.*;
+import com.pearl.warehouse001.entity.Region;
+import com.pearl.warehouse001.entity.Township;
 import com.pearl.warehouse001.entity.Warehouse;
 import com.pearl.warehouse001.entity.WarehouseSpecification;
 import com.pearl.warehouse001.exception.NameDuplicateException;
 import com.pearl.warehouse001.mapper.WarehouseMapper;
+import com.pearl.warehouse001.repository.RegionRepository;
+import com.pearl.warehouse001.repository.TownshipRepository;
 import com.pearl.warehouse001.repository.WarehouseRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,9 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -38,33 +37,12 @@ public class WarehouseService {
     private  WarehouseRepository warehouseRepository;
 
     @Autowired
+    private TownshipRepository townshipRepository;
+
+    @Autowired
     private WarehouseMapper warehouseMapper;
-
-    public Page<WarehouseResponse> getWarehouses(
-            int page,
-            int size,
-            String sortBy,
-            String direction,
-            Specification<Warehouse> spec) {
-
-        // Validate Sort Field
-        if (!ALLOWED_SORT_FIELDS.contains(sortBy)) {
-            sortBy = "id";
-        }
-
-        Sort sort = "DESC".equalsIgnoreCase(direction)
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
-
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        // Uses JpaSpecificationExecutor for dynamic filtering
-        Page<Warehouse> warehousePage = warehouseRepository.findAll(spec, pageable);
-
-        return warehousePage.map(warehouseMapper::toResponse);
-    }
-
-
+    @Autowired
+    private RegionRepository regionRepository;
 
 
 //    public WarehouseService(WarehouseRepository warehouseRepository) {
@@ -86,13 +64,48 @@ public class WarehouseService {
         return warehouseRepository.findByNameContaining(name);
     }
 
-
+    @Transactional
     public WarehouseResponse saveWarehouse(WarehouseRequest warehouseRequest) {
 
         if(warehouseRepository.existsByName(warehouseRequest.name())){
             throw new NameDuplicateException("Warehouse name already exists");
         }
+
+        if(warehouseRequest.zones() != null && !warehouseRequest.zones().isEmpty()){
+            List<String> incomingZones = warehouseRequest.zones()
+                    .stream().map(ZoneRequest::name)
+                    .toList();
+
+
+            List<String> incomingBinCodes = warehouseRequest.zones()
+                    .stream()
+                    .filter(z -> z.bins() != null)  // to filter to skip zones without bins
+                    .flatMap(z -> z.bins().stream())
+                    .map(BinRequest::code)
+                    .toList();
+
+            // to check whether duplicate zone Name exist in request
+            Set<String> duplicateZone = new HashSet<>();
+            for(String zoneName : incomingZones){
+                if(!duplicateZone.add(zoneName)){
+                    throw new NameDuplicateException("Zone name: "+zoneName+" already exists in input request");
+                }
+            }
+
+            Set<String> duplicateBinCode = new HashSet<>();
+            for(String binCode : incomingBinCodes){
+                if(!duplicateBinCode.add(binCode)){
+                    throw new NameDuplicateException("Bin code: "+binCode+" already exists in input request");
+                }
+            }
+
+        }
+        Township township = townshipRepository.findById(warehouseRequest.townshipId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid Township ID"));
+
+
         Warehouse warehouse = warehouseMapper.toEntity(warehouseRequest);
+        warehouse.setTownship(township);
         Warehouse savedWarehouse = warehouseRepository.save(warehouse);
         return warehouseMapper.toResponse(savedWarehouse);
     }
@@ -117,8 +130,6 @@ public class WarehouseService {
             throw new NameDuplicateException("Warehouse name already exists");
         }
         existing.setName(warehouseRequest.name());
-        existing.setLocation(warehouseRequest.location());
-        existing.setTownship(warehouseRequest.township());
         existing.setWarehouseType(warehouseRequest.warehouseType());
 
         Warehouse updated = warehouseRepository.save(existing);
@@ -168,5 +179,5 @@ public class WarehouseService {
         // Map entire page to Response DTOs
         return warehousePage.map(warehouseMapper::toResponse);
     }
-
+    
 }

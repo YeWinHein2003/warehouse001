@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,13 +22,17 @@ public class Warehouse {
 
     @Column(nullable = false, unique = true,length = 50) //unique = true, to prevent duplication
     private String name;
-    @Column(nullable = false, length = 50)
-    private String location;
-    @Column(nullable = false, length = 50)
-    private String township;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "township_id",referencedColumnName = "id")
+    private Township township;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="region_id", referencedColumnName = "id")
+    private Region region;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="warehouse_type")
+    @JoinColumn(name="warehouse_type")
     private WarehouseType warehouseType;
 
     public enum WarehouseType {
@@ -45,7 +50,20 @@ public class Warehouse {
     private Long createdUserId;
 
     @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Zone> zones;
+    private List<Zone> zones = new ArrayList<>();
+
+    public Warehouse(){}
+
+    public Warehouse(Long id, String name, Township township, Region region, WarehouseType warehouseType, OffsetDateTime createdAt, Long createdUserId, List<Zone> zones) {
+        this.id = id;
+        this.name = name;
+        this.township = township;
+        this.region = region;
+        this.warehouseType = warehouseType;
+        this.createdAt = createdAt;
+        this.createdUserId = createdUserId;
+        this.zones = zones;
+    }
 
     public Long getId() {
         return id;
@@ -63,20 +81,20 @@ public class Warehouse {
         this.name = name;
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getTownship() {
+    public Township getTownship() {
         return township;
     }
 
-    public void setTownship(String township) {
+    public void setTownship(Township township) {
         this.township = township;
+    }
+
+    public Region getRegion() {
+        return region;
+    }
+
+    public void setRegion(Region region) {
+        this.region = region;
     }
 
     public WarehouseType getWarehouseType() {
@@ -108,21 +126,6 @@ public class Warehouse {
     }
 
     public void setZones(List<Zone> zones) {
-        this.zones = zones;
-    }
-
-    public Warehouse(){
-
-    }
-
-    public Warehouse(Long id, String name, String location, String township, WarehouseType warehouseType, OffsetDateTime createdAt, Long createdUserId, List<Zone> zones) {
-        this.id = id;
-        this.name = name;
-        this.location = location;
-        this.township = township;
-        this.warehouseType = warehouseType;
-        this.createdAt = createdAt;
-        this.createdUserId = createdUserId;
         this.zones = zones;
     }
 }

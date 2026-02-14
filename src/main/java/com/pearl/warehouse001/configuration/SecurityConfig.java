@@ -25,6 +25,8 @@ public class SecurityConfig {
                         // Allow your warehouse API for now (or change to authenticated())
                         .requestMatchers("/api/v1/warehouses/**").permitAll()
                         .requestMatchers("/api/v1/zones/**").permitAll()
+                        .requestMatchers("/api/v1/bins/**").permitAll()
+                        .requestMatchers("/api/v1/locations/**").permitAll()
 
                         // Everything else requires login
                         .anyRequest().authenticated()

@@ -5,10 +5,13 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.mapstruct.ap.internal.conversion.BigDecimalToBigIntegerConversion;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name="zone" , uniqueConstraints = {
@@ -38,6 +41,10 @@ public class Zone {
     @CreatedBy // Automatically captured if Spring Security is used
     @Column(name = "created_userid")
     private Long createdUserId;
+
+//******************
+    @OneToMany(mappedBy = "zone",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bin> bins = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -87,16 +94,21 @@ public class Zone {
         this.createdUserId = createdUserId;
     }
 
+    public List<Bin> getBins() {return bins;}
+
+    public void setBins(List<Bin> bins) {this.bins = bins;}
+
     public Zone(){
 
     }
 
-    public Zone(Long id, Warehouse warehouse, String name, String zoneType, OffsetDateTime createdAt, Long createdUserId) {
+    public Zone(Long id, Warehouse warehouse, String name, String zoneType, OffsetDateTime createdAt, Long createdUserId, List<Bin> bins) {
         this.id = id;
         this.warehouse = warehouse;
         this.name = name;
         this.zoneType = zoneType;
         this.createdAt = createdAt;
         this.createdUserId = createdUserId;
+        this.bins = bins;
     }
 }

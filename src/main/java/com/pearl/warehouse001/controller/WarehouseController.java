@@ -77,7 +77,6 @@ public class WarehouseController {
     }
 
     @PostMapping("/save")
-    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ApiResponse<WarehouseResponse>> addWarehouse(@Valid @RequestBody  WarehouseRequest warehouse) {
         WarehouseResponse data=warehouseService.saveWarehouse(warehouse);
         return ResponseEntity.ok(ApiResponse.success(data, "Warehouse Added Successfully"));

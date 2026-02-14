@@ -10,20 +10,19 @@ import java.time.OffsetDateTime;
 @Data
 @NoArgsConstructor
 public class WarehouseResponse {
-    Long id;
-    String name;
-    String location;
-    String township;
-    String displayAddress;
-    WarehouseType warehouseType;
-    OffsetDateTime createdAt;
+    private Long id;
+    private String name;
+    private String regionName;
+    private String townshipName;
 
-    public WarehouseResponse(Long id, String name, String location, String township, String displayAddress, WarehouseType warehouseType, OffsetDateTime createdAt) {
+    private WarehouseType warehouseType;
+    private OffsetDateTime createdAt;
+
+    public WarehouseResponse(Long id, String name, String regionName, String townshipName, WarehouseType warehouseType, OffsetDateTime createdAt) {
         this.id = id;
         this.name = name;
-        this.location = location;
-        this.township = township;
-        this.displayAddress = displayAddress;
+        this.regionName = regionName;
+        this.townshipName = townshipName;
         this.warehouseType = warehouseType;
         this.createdAt = createdAt;
     }
@@ -44,28 +43,20 @@ public class WarehouseResponse {
         this.name = name;
     }
 
-    public String getLocation() {
-        return location;
+    public String getRegionName() {
+        return regionName;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setRegionName(String regionName) {
+        this.regionName = regionName;
     }
 
-    public String getTownship() {
-        return township;
+    public String getTownshipName() {
+        return townshipName;
     }
 
-    public void setTownship(String township) {
-        this.township = township;
-    }
-
-    public String getDisplayAddress() {
-        return displayAddress;
-    }
-
-    public void setDisplayAddress(String displayAddress) {
-        this.displayAddress = displayAddress;
+    public void setTownshipName(String townshipName) {
+        this.townshipName = townshipName;
     }
 
     public WarehouseType getWarehouseType() {
