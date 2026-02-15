@@ -127,11 +127,15 @@ public class WarehouseService {
         Warehouse existing= warehouseRepository.findById(id)
                 .orElseThrow(() -> new NameDuplicateException("Warehouse not found"));
 
-        if(!existing.getName().equals(warehouseRequest.name()) && warehouseRepository.existsByName(warehouseRequest.name())){
-            throw new NameDuplicateException("Warehouse name already exists");
+        if(warehouseRequest.name()!=null && !warehouseRequest.name().isBlank()){
+            if(!existing.getName().equals(warehouseRequest.name()) && warehouseRepository.existsByName(warehouseRequest.name())){
+                throw new NameDuplicateException("Warehouse name already exists");
+            }
+            existing.setName(warehouseRequest.name());
         }
-        existing.setName(warehouseRequest.name());
-        existing.setWarehouseType(warehouseRequest.warehouseType());
+        if(warehouseRequest.warehouseType()!=null){
+            existing.setWarehouseType(warehouseRequest.warehouseType());
+        }
 
         Warehouse updated = warehouseRepository.save(existing);
         return warehouseMapper.toResponse(updated);

@@ -84,7 +84,7 @@ public class WarehouseController {
         return ResponseEntity.ok(ApiResponse.success(data, "Warehouse Added Successfully"));
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<WarehouseResponse>> updateWarehouse(
             @PathVariable Long id,
             @Valid @RequestBody WarehouseUpdateRequest warehouseRequest) {
@@ -92,7 +92,7 @@ public class WarehouseController {
         return ResponseEntity.ok(ApiResponse.success(data, "Warehouse Updated Successfully"));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteById(@PathVariable Long id){
         return ResponseEntity.ok(warehouseService.deleteWarehouseById(id));
     }

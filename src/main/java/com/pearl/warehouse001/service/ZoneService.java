@@ -132,16 +132,22 @@ public class ZoneService {
         Zone zone = zoneRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Zone not found"));
 
-        if(!zone.getName().equals(zoneRequest.name()) && zoneRepository.existsByNameAndWarehouseId(zoneRequest.name(),zoneRequest.warehouseId())){
-            throw new NameDuplicateException("Zone name already exists in this warehouse.");
-        }
+
 
         Warehouse warehouse = warehouseRepository.findById(zoneRequest.warehouseId())
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Warehouse not found"));
 
-        // Update fields
-        zone.setName(zoneRequest.name());
-        zone.setZoneType(zoneRequest.zoneType());
+        if(zoneRequest.name()!=null && !zoneRequest.name().isBlank()){
+            if(!zone.getName().equals(zoneRequest.name()) && zoneRepository.existsByNameAndWarehouseId(zoneRequest.name(),zoneRequest.warehouseId())){
+                throw new NameDuplicateException("Zone name already exists in this warehouse.");
+            }
+            zone.setName(zoneRequest.name());
+        }
+
+        if(zoneRequest.zoneType()!=null){
+            zone.setZoneType(zoneRequest.zoneType());
+        }
+
         zone.setWarehouse(warehouse);
 
 
