@@ -13,9 +13,13 @@ import org.mapstruct.MappingTarget;
 public interface WarehouseMapper {
     @Mapping(target="region", ignore = true)
     @Mapping(target = "township" , ignore = true)
+    @Mapping(target = "lastModifiedAt", ignore = true)
+    @Mapping(target = "deletedAt" , ignore = true)
     Warehouse toEntity(WarehouseRequest warehouseRequest) ;
 
     @Mapping(target = "address", expression = "java(warehouse.getTownship().getRegion().getRegion_name() + \",\" + warehouse.getTownship().getTownship_name())")
+    // MapStruct maps "deletedAt" automatically if names match, but you can be explicit:
+    @Mapping(target = "deletedAt", source = "deletedAt")
     WarehouseResponse toResponse(Warehouse warehouse);
 
 

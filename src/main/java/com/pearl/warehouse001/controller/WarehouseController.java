@@ -45,13 +45,14 @@ public class WarehouseController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Long townshipId,
             @RequestParam(required = false) Long regionId,
+            @RequestParam(required = false) Boolean showDeleted,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id", required = false) String sortBy,
             @RequestParam(defaultValue = "DESC", required = false) String direction) {
 
         // Assuming your service now accepts these primitive types like ProductService
-        Page<WarehouseResponse> warehousePage = warehouseService.getWarehousesPaginated(keyword,name,townshipId, regionId, page, size, sortBy, direction);
+        Page<WarehouseResponse> warehousePage = warehouseService.getWarehousesPaginated(keyword,name,townshipId, regionId, showDeleted, page, size, sortBy, direction);
 
         // Manually build Pagination object to match your Product style
         Pagination pagination = new Pagination(
@@ -82,6 +83,12 @@ public class WarehouseController {
     public ResponseEntity<ApiResponse<WarehouseResponse>> addWarehouse(@Valid @RequestBody  WarehouseRequest warehouse) {
         WarehouseResponse data=warehouseService.saveWarehouse(warehouse);
         return ResponseEntity.ok(ApiResponse.success(data, "Warehouse Added Successfully"));
+    }
+
+    @PostMapping("/{id}/restore")
+    public ResponseEntity<ApiResponse<WarehouseResponse>> restoreDeletedWarehouse(@PathVariable Long id) {
+        WarehouseResponse data=warehouseService.restoreWarehouse(id);
+        return ResponseEntity.ok(ApiResponse.success(data, "Warehouse Restored Successfully"));
     }
 
     @PutMapping("/{id}")

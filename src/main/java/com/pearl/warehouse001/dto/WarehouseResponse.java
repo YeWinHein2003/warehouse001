@@ -12,18 +12,23 @@ import java.time.OffsetDateTime;
 public class WarehouseResponse {
     private Long id;
     private String name;
+    private String status;
     private String address;
-
     private WarehouseType warehouseType;
     private OffsetDateTime createdAt;
+    private OffsetDateTime lastModifiedAt;
+    // ADD THIS FIELD
+    private OffsetDateTime deletedAt;
 
-    public WarehouseResponse(Long id, String name,
-                             String address, WarehouseType warehouseType, OffsetDateTime createdAt) {
+    public WarehouseResponse(Long id, String name, String status, String address, WarehouseType warehouseType, OffsetDateTime createdAt, OffsetDateTime lastModifiedAt, OffsetDateTime deletedAt) {
         this.id = id;
         this.name = name;
+        this.status = status;
         this.address = address;
         this.warehouseType = warehouseType;
         this.createdAt = createdAt;
+        this.lastModifiedAt = lastModifiedAt;
+        this.deletedAt = deletedAt;
     }
 
     public Long getId() {
@@ -42,6 +47,13 @@ public class WarehouseResponse {
         this.name = name;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getAddress() {
         return address;
@@ -65,5 +77,21 @@ public class WarehouseResponse {
 
     public void setCreatedAt(OffsetDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public OffsetDateTime getLastModifiedAt() {
+        return lastModifiedAt;
+    }
+
+    public void setLastModifiedAt(OffsetDateTime lastModifiedAt) {
+        this.lastModifiedAt = lastModifiedAt;
+    }
+
+    public OffsetDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(OffsetDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

@@ -21,7 +21,11 @@ public record WarehouseRequest (
     @NotNull(message = "Warehouse Type is required")
     WarehouseType warehouseType,
 
+    String status,
+
     Long createdUserId,
+
+    Long modifiedUserId,
 
     //************************************
     //for nested save with zones

@@ -16,11 +16,14 @@ public record ZoneRequest(
         @NotBlank(message = "Zone Type is required")
         String zoneType,
 
+        String status,
+
         @NotNull(message = "Warehouse Id is required")
         Long warehouseId,
 
         Long createdUserId,
 
+        Long modifiedUserId,
         //******************
         List<BinRequest> bins
 ) {

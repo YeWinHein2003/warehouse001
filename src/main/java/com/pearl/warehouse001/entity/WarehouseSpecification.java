@@ -27,6 +27,15 @@ public class WarehouseSpecification {
         };
     }
 
+    public static Specification<Warehouse> isDeleted(Boolean showDeleted){
+        return (root, query, cb) -> {
+            if(showDeleted == null || !showDeleted) {
+                return cb.isNull(root.get("deletedAt"));
+            }
+            return null;
+        };
+    }
+
     public static Specification<Warehouse> globalSearch(String keyword){
         return (root, query, cb)->{
             if(keyword == null || keyword.trim().isBlank()) return null;

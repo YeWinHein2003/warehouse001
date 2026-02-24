@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 
 
@@ -138,6 +139,10 @@ public class WarehouseService {
         }
 
         Warehouse updated = warehouseRepository.save(existing);
+
+        // IMPORTANT: Flush ensures the DB timestamp is generated before mapping back to DTO
+        warehouseRepository.flush();
+
         return warehouseMapper.toResponse(updated);
     }
 
@@ -153,8 +158,31 @@ public class WarehouseService {
 
 
     public Boolean deleteWarehouseById(Long id) {
-        warehouseRepository.deleteById(id);
+
+        Warehouse warehouse = warehouseRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Warehouse not found"));
+        // 1. Logic: Set the timestamp and change status to DELETED
+        warehouse.setDeletedAt(OffsetDateTime.now());
+        warehouse.setStatus("Deleted"); // Using your new status field
+
+        // 2. Save (Updates the record instead of deleting it)
+        warehouseRepository.save(warehouse);
+
         return true;
+    }
+
+    // to Soft Undo warehouses deleted with Soft Delete
+    public WarehouseResponse restoreWarehouse(Long id) {
+        Warehouse warehouse = warehouseRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Warehouse not found"));
+
+        if(warehouse.getDeletedAt()==null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Warehouse Status is already Active");
+        }
+        warehouse.setDeletedAt(null);
+        warehouse.setStatus("Active");
+
+        return warehouseMapper.toResponse(warehouseRepository.save(warehouse));
     }
 
     @Transactional(readOnly = true)
@@ -163,6 +191,7 @@ public class WarehouseService {
             String name,
             Long townshipId,
             Long regionId,
+            Boolean showDeleted,
             int page,
             int size,
             String sortBy,
@@ -181,7 +210,8 @@ public class WarehouseService {
         Specification<Warehouse> spec = Specification.where(WarehouseSpecification.hasName(name))
                 .and(WarehouseSpecification.globalSearch(keyword))
                 .and(WarehouseSpecification.hasTownship(townshipId))
-                .and(WarehouseSpecification.hasRegion(regionId));
+                .and(WarehouseSpecification.hasRegion(regionId))
+                .and(WarehouseSpecification.isDeleted(showDeleted));
 
 
 
